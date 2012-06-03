@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Log Demo</title>
+    <link rel="stylesheet" type="text/css" href="styles/bootstrap.css">
+    <script type="text/javascript" src="javascript/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="javascript/jquery.log.js"></script>
+</head>
+<body>
+    <h1>jQuery log plugin</h1>
+    <p>Whenever you want to log something you can call:</p>
+    <code>
+        $.log('foo');
+    </code>
+    <p>or</p>
+    <code>
+        console.log('foo');
+    </code>
+    <p>It is possible to assign your own log function, this can be done with:</p>
+    <code>
+        $.setLogFunction(function (message, level) {
+            alert(message);
+        });
+    </code>
+    <p>The level parameter can be used to hide warnings you don't want to log in certain environments (e.g. production)</p>
+</body>
+</html>
