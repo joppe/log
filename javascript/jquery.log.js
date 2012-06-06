@@ -4,7 +4,18 @@
     'use strict';
 
     var log_function,
-        getLogger;
+        getLogger,
+        minimum_log_level = 0;
+
+    /**
+     * Set the minimum log level
+     * This must be a positive integer
+     *
+     * @param {Number} level
+     */
+    $.setMinimumLogLevel = function (level) {
+        minimum_log_level = Math.max(0, parseInt(level, 10));
+    };
 
     /**
      * Set the function that will handle console.log and $.log calls.
@@ -54,7 +65,9 @@
                 log_function = getLogFunction();
 
                 logger = function (message, level) {
-                    log_function.apply(this, [message]);
+                    if (level >= minimum_log_level) {
+                        log_function.apply(this, [message]);
+                    }
                 };
 
                 // replace the window.console.log
