@@ -1,97 +1,104 @@
 /*global jQuery, window*/
 
+/**
+ * This function is used to log messages
+ */
 (function ($) {
     'use strict';
 
-    var log_function,
-        getLogger,
-        minimum_log_level = 0;
+    var Settings,
+        Logger,
+        Console;
 
-    /**
-     * Set the minimum log level
-     * This must be a positive integer
-     *
-     * @param {Number} level
-     */
-    $.setMinimumLogLevel = function (level) {
-        minimum_log_level = Math.max(0, parseInt(level, 10));
-    };
+    Console = (function () {
+        var log_function;
 
-    /**
-     * Set the function that will handle console.log and $.log calls.
-     *
-     * @param {Function} callback
-     */
-    $.setLogFunction = function (callback) {
-        log_function = callback;
-    };
-
-    /**
-     * Get the console.log function if provided by the browser. If ot does not exist a mock function
-     * is used.
-     *
-     * @return {Function}
-     */
-    function getConsoleLogFunction() {
         if (typeof window.console === 'undefined') {
             window.console = {};
             window.console.log = function () {};
         }
 
-        return window.console.log;
-    }
+        log_function = window.console.log;
 
-    /**
-     * Get the function that will handle the log requests.
-     * If no function is set, console.log is used
-     *
-     * @return {Function}
-     */
-    function getLogFunction() {
-        if (typeof log_function === 'undefined') {
-            log_function = getConsoleLogFunction();
-        }
-
-        return log_function;
-    }
-
-    getLogger = (function () {
-        var logger;
-
-        return function () {
-            var log_function;
-
-            if (typeof logger === 'undefined') {
-                log_function = getLogFunction();
-
-                logger = function (message, level) {
-                    if (level >= minimum_log_level) {
-                        log_function.apply(this, [message]);
-                    }
-                };
-
-                // replace the window.console.log
-                getConsoleLogFunction();
-                window.console.log = function (message) {
-                    logger(message, 0);
-                };
+        return {
+            /**
+             * @return {Function}
+             */
+            getLogFunction: function () {
+                return log_function;
             }
+        };
+    }());
 
-            return logger;
+    Settings = (function () {
+        var log_function;
+
+        return {
+            /**
+             * @param {Function} callback
+             */
+            setLogFunction: function (callback) {
+                log_function = callback;
+            },
+
+            /**
+             * @return {Function}
+             */
+            getLogFunction: function () {
+                if (typeof log_function === 'undefined') {
+                    log_function = Console.getLogFunction();
+                }
+
+                return log_function;
+            }
+        };
+    }());
+
+    Logger = (function () {
+        return {
+            log: function () {
+                var log_function = Settings.getLogFunction();
+
+                log_function.apply(this, arguments);
+            }
         };
     }());
 
     /**
-     * @param {String} message
-     * @param {Number} [level]
+     * The log function
      */
-    $.log = function (message, level) {
-        var logger = getLogger();
-
-        if (typeof level === 'undefined') {
-            level = 0;
-        }
-
-        logger(message, parseInt(level, 10));
+    $.log = function () {
+        Logger.log.apply(this, arguments);
     };
+
+    /**
+     * Settings
+     */
+    $.log.settings = (function () {
+        return {
+            /**
+             * @param {Function} log_function
+             */
+            setLogFunction: function (log_function) {
+                Settings.setLogFunction(log_function);
+            },
+
+            /**
+             * @param {Boolean} override
+             */
+            overrideConsoleLog: function (override) {
+                if (override === true) {
+                    window.console.log = function () {
+                        Logger.log.apply(this, arguments);
+                    };
+                } else {
+                    window.console.log = function () {
+                        var log_function = Console.getLogFunction();
+
+                        log_function.apply(this, arguments);
+                    };
+                }
+            }
+        };
+    }());
 }(jQuery));
