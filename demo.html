@@ -12,16 +12,16 @@
     <code>
         $.log('foo');
     </code>
-    <p>or</p>
-    <code>
-        console.log('foo');
-    </code>
     <p>It is possible to assign your own log function, this can be done with:</p>
     <code>
-        $.setLogFunction(function (message, level) {
+        $.log.settings.setLogFunction(function (message) {
             alert(message);
         });
     </code>
-    <p>The level parameter can be used to hide warnings you don't want to log in certain environments (e.g. production)</p>
+    <p>By invoking</p>
+    <code>
+        $.log.settings.overrideConsoleLog(true);
+    </code>
+    <p>Now all console.log() calls will be handled by $.log()</p>
 </body>
 </html>
